@@ -15,12 +15,14 @@ import {
     Shield,
     Menu,
     X,
+    FileText,
 } from "lucide-react";
 import { AuthProvider, useAuth } from "@/lib/auth-provider";
 
 const navItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/leads", label: "Leads", icon: Users },
+    { href: "/admin/billing", label: "Billing", icon: FileText },
 ];
 
 function AdminContent({ children }: { children: React.ReactNode }) {
