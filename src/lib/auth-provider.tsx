@@ -78,13 +78,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (supabase) {
             await supabase.auth.signOut();
             setUser(null);
-        } else {
-            sessionStorage.removeItem("admin_auth");
-            setFallbackAuth(false);
         }
+        sessionStorage.removeItem("admin_auth");
+        setFallbackAuth(false);
     }, [supabase]);
 
-    const isAuthenticated = useSupabaseAuth ? !!user : fallbackAuth;
+    const isAuthenticated = !!user || fallbackAuth;
 
     return (
         <AuthContext.Provider
