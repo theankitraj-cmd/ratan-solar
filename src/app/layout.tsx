@@ -7,6 +7,7 @@ import { ClientWidgets } from "@/components/ui/client-widgets";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { SplashScreen } from "@/components/ui/splash-screen";
 import { CursorGlow } from "@/components/ui/cursor-glow";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -83,6 +84,7 @@ export default function RootLayout({
           <CursorGlow />
           {children}
           <ClientWidgets />
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>
