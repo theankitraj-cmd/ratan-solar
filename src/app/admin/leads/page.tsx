@@ -11,6 +11,7 @@ import {
     MessageSquare,
     Save,
     X,
+    ChevronLeft,
 } from "lucide-react";
 import type { Lead, LeadStatus } from "@/lib/types";
 import { statusColors, statusLabels, sourceLabels } from "@/lib/types";
@@ -71,11 +72,125 @@ export default function LeadsPage() {
             l.phone.includes(search)
     );
 
+    // Lead Detail Panel content (shared between desktop sidebar and mobile drawer)
+    const LeadDetailContent = ({ lead }: { lead: Lead }) => (
+        <>
+            {/* Avatar & Name */}
+            <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+                    <span className="text-xl font-bold text-white">
+                        {lead.name.charAt(0).toUpperCase()}
+                    </span>
+                </div>
+                <div>
+                    <h4 className="text-white font-semibold">{lead.name}</h4>
+                    <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded">
+                        {sourceLabels[lead.source]}
+                    </span>
+                </div>
+            </div>
+
+            {/* Contact Info */}
+            <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-3 text-sm">
+                    <Phone className="w-4 h-4 text-gray-500" />
+                    <a href={`tel:${lead.phone}`} className="text-green-400 hover:underline">
+                        {lead.phone}
+                    </a>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                    <Mail className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-300">{lead.email || "—"}</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                    <Calendar className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-300">
+                        {new Date(lead.created_at).toLocaleString("en-IN")}
+                    </span>
+                </div>
+            </div>
+
+            {/* Message */}
+            {lead.message && (
+                <div className="mb-6">
+                    <label className="text-gray-400 text-xs font-medium block mb-2">
+                        <MessageSquare className="w-3 h-3 inline mr-1" />
+                        Message
+                    </label>
+                    <p className="text-gray-300 text-sm bg-gray-800/50 p-3 rounded-xl">
+                        {lead.message}
+                    </p>
+                </div>
+            )}
+
+            {/* Referral Info */}
+            {lead.referred_name && (
+                <div className="mb-6 bg-purple-500/10 border border-purple-500/20 p-4 rounded-xl">
+                    <p className="text-purple-300 text-xs font-medium mb-2">Referred Person</p>
+                    <p className="text-white text-sm font-medium">{lead.referred_name}</p>
+                    <p className="text-gray-400 text-xs">{lead.referred_phone}</p>
+                    {lead.referred_email && (
+                        <p className="text-gray-400 text-xs">{lead.referred_email}</p>
+                    )}
+                </div>
+            )}
+
+            {/* Status Update */}
+            <div className="mb-6">
+                <label className="text-gray-400 text-xs font-medium block mb-2">
+                    Status
+                </label>
+                <select
+                    value={lead.status}
+                    onChange={(e) => handleStatusUpdate(lead.id, e.target.value as LeadStatus)}
+                    className="w-full bg-gray-800 border border-gray-700 text-white text-sm rounded-xl px-3 py-2.5 focus:ring-green-500"
+                >
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="qualified">Qualified</option>
+                    <option value="converted">Converted</option>
+                    <option value="lost">Lost</option>
+                </select>
+            </div>
+
+            {/* Notes */}
+            <div className="mb-6">
+                <label className="text-gray-400 text-xs font-medium block mb-2">
+                    Notes
+                </label>
+                <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Add notes about this lead..."
+                    rows={3}
+                    className="w-full bg-gray-800 border border-gray-700 text-white text-sm rounded-xl px-3 py-2.5 focus:ring-green-500 resize-none"
+                />
+                <button
+                    onClick={handleSaveNotes}
+                    className="mt-2 flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-500 transition-colors"
+                >
+                    <Save className="w-3 h-3" />
+                    Save Notes
+                </button>
+            </div>
+
+            {/* Delete */}
+            <button
+                onClick={() => handleDelete(lead.id)}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-400 rounded-xl text-sm hover:bg-red-500/20 transition-colors w-full justify-center"
+            >
+                <Trash2 className="w-4 h-4" />
+                Delete Lead
+            </button>
+        </>
+    );
+
     return (
         <div>
-            <div className="flex items-center justify-between mb-8">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">All Leads</h1>
+                    <h1 className="text-xl md:text-2xl font-bold text-white">All Leads</h1>
                     <p className="text-gray-400 text-sm mt-1">{leads.length} total leads</p>
                 </div>
                 <div className="relative">
@@ -85,7 +200,7 @@ export default function LeadsPage() {
                         placeholder="Search name, email, phone..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent w-72"
+                        className="pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent w-full sm:w-72"
                     />
                 </div>
             </div>
@@ -112,8 +227,8 @@ export default function LeadsPage() {
                                     setNotes(lead.notes || "");
                                 }}
                                 className={`w-full text-left bg-gray-900/60 border rounded-xl p-4 transition-all duration-200 hover:border-gray-600 ${selectedLead?.id === lead.id
-                                        ? "border-green-600/50 bg-green-600/5"
-                                        : "border-gray-800"
+                                    ? "border-green-600/50 bg-green-600/5"
+                                    : "border-gray-800"
                                     }`}
                             >
                                 <div className="flex items-center justify-between">
@@ -132,7 +247,7 @@ export default function LeadsPage() {
                                         <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors[lead.status]}`}>
                                             {statusLabels[lead.status]}
                                         </span>
-                                        <span className="text-gray-600 text-xs">
+                                        <span className="text-gray-600 text-xs hidden sm:inline">
                                             {new Date(lead.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                                         </span>
                                     </div>
@@ -142,9 +257,9 @@ export default function LeadsPage() {
                     )}
                 </div>
 
-                {/* Lead Detail Panel */}
+                {/* Lead Detail Panel — Desktop only */}
                 {selectedLead && (
-                    <div className="w-96 bg-gray-900/60 border border-gray-800 rounded-2xl p-6 sticky top-8 h-fit">
+                    <div className="hidden md:block w-96 bg-gray-900/60 border border-gray-800 rounded-2xl p-6 sticky top-8 h-fit">
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-white font-bold">Lead Details</h3>
                             <button
@@ -154,117 +269,30 @@ export default function LeadsPage() {
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
-
-                        {/* Avatar & Name */}
-                        <div className="flex items-center gap-4 mb-6">
-                            <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
-                                <span className="text-xl font-bold text-white">
-                                    {selectedLead.name.charAt(0).toUpperCase()}
-                                </span>
-                            </div>
-                            <div>
-                                <h4 className="text-white font-semibold">{selectedLead.name}</h4>
-                                <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded">
-                                    {sourceLabels[selectedLead.source]}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Contact Info */}
-                        <div className="space-y-3 mb-6">
-                            <div className="flex items-center gap-3 text-sm">
-                                <Phone className="w-4 h-4 text-gray-500" />
-                                <a href={`tel:${selectedLead.phone}`} className="text-green-400 hover:underline">
-                                    {selectedLead.phone}
-                                </a>
-                            </div>
-                            <div className="flex items-center gap-3 text-sm">
-                                <Mail className="w-4 h-4 text-gray-500" />
-                                <span className="text-gray-300">{selectedLead.email || "—"}</span>
-                            </div>
-                            <div className="flex items-center gap-3 text-sm">
-                                <Calendar className="w-4 h-4 text-gray-500" />
-                                <span className="text-gray-300">
-                                    {new Date(selectedLead.created_at).toLocaleString("en-IN")}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Message */}
-                        {selectedLead.message && (
-                            <div className="mb-6">
-                                <label className="text-gray-400 text-xs font-medium block mb-2">
-                                    <MessageSquare className="w-3 h-3 inline mr-1" />
-                                    Message
-                                </label>
-                                <p className="text-gray-300 text-sm bg-gray-800/50 p-3 rounded-xl">
-                                    {selectedLead.message}
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Referral Info */}
-                        {selectedLead.referred_name && (
-                            <div className="mb-6 bg-purple-500/10 border border-purple-500/20 p-4 rounded-xl">
-                                <p className="text-purple-300 text-xs font-medium mb-2">Referred Person</p>
-                                <p className="text-white text-sm font-medium">{selectedLead.referred_name}</p>
-                                <p className="text-gray-400 text-xs">{selectedLead.referred_phone}</p>
-                                {selectedLead.referred_email && (
-                                    <p className="text-gray-400 text-xs">{selectedLead.referred_email}</p>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Status Update */}
-                        <div className="mb-6">
-                            <label className="text-gray-400 text-xs font-medium block mb-2">
-                                Status
-                            </label>
-                            <select
-                                value={selectedLead.status}
-                                onChange={(e) => handleStatusUpdate(selectedLead.id, e.target.value as LeadStatus)}
-                                className="w-full bg-gray-800 border border-gray-700 text-white text-sm rounded-xl px-3 py-2.5 focus:ring-green-500"
-                            >
-                                <option value="new">New</option>
-                                <option value="contacted">Contacted</option>
-                                <option value="qualified">Qualified</option>
-                                <option value="converted">Converted</option>
-                                <option value="lost">Lost</option>
-                            </select>
-                        </div>
-
-                        {/* Notes */}
-                        <div className="mb-6">
-                            <label className="text-gray-400 text-xs font-medium block mb-2">
-                                Notes
-                            </label>
-                            <textarea
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                                placeholder="Add notes about this lead..."
-                                rows={3}
-                                className="w-full bg-gray-800 border border-gray-700 text-white text-sm rounded-xl px-3 py-2.5 focus:ring-green-500 resize-none"
-                            />
-                            <button
-                                onClick={handleSaveNotes}
-                                className="mt-2 flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-500 transition-colors"
-                            >
-                                <Save className="w-3 h-3" />
-                                Save Notes
-                            </button>
-                        </div>
-
-                        {/* Delete */}
-                        <button
-                            onClick={() => handleDelete(selectedLead.id)}
-                            className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-400 rounded-xl text-sm hover:bg-red-500/20 transition-colors w-full justify-center"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                            Delete Lead
-                        </button>
+                        <LeadDetailContent lead={selectedLead} />
                     </div>
                 )}
             </div>
+
+            {/* Lead Detail Drawer — Mobile only (full-screen overlay) */}
+            {selectedLead && (
+                <div className="md:hidden fixed inset-0 z-50 bg-gray-950">
+                    {/* Drawer Header */}
+                    <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 sticky top-0 bg-gray-950 z-10">
+                        <button
+                            onClick={() => setSelectedLead(null)}
+                            className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                        >
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <h3 className="text-white font-bold text-sm">Lead Details</h3>
+                    </div>
+                    {/* Drawer Body */}
+                    <div className="p-4 overflow-auto" style={{ maxHeight: "calc(100vh - 56px)" }}>
+                        <LeadDetailContent lead={selectedLead} />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

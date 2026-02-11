@@ -43,20 +43,20 @@ export function LeadsChart({ leads }: LeadsChartProps) {
     const maxCount = Math.max(...chartData.map((d) => d.count), 1);
 
     return (
-        <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-6">
+        <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-4 md:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 md:mb-6">
                 <div>
-                    <h3 className="text-white font-bold text-lg">Lead Activity</h3>
-                    <p className="text-gray-400 text-sm">Last 14 days</p>
+                    <h3 className="text-white font-bold text-base md:text-lg">Lead Activity</h3>
+                    <p className="text-gray-400 text-xs md:text-sm">Last 14 days</p>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                     <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span className="text-gray-400">Leads per day</span>
+                    <span className="text-gray-400 text-xs">Leads per day</span>
                 </div>
             </div>
-            <div className="h-[200px]">
+            <div className="h-[160px] md:h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} barSize={20}>
+                    <BarChart data={chartData} barSize={16}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
                         <XAxis
                             dataKey="label"

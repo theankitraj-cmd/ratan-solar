@@ -145,9 +145,9 @@ export default function AdminDashboard() {
     return (
         <div>
             {/* Header */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+                    <h1 className="text-xl md:text-2xl font-bold text-white">Dashboard</h1>
                     <p className="text-gray-400 text-sm mt-1">
                         Welcome back! Here&apos;s your lead overview.
                     </p>
@@ -156,14 +156,14 @@ export default function AdminDashboard() {
                     <button
                         onClick={exportCSV}
                         disabled={leads.length === 0}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 hover:text-white hover:bg-gray-750 transition-all text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 hover:text-white hover:bg-gray-750 transition-all text-xs md:text-sm disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         <Download className="w-4 h-4" />
-                        Export CSV
+                        <span className="hidden sm:inline">Export</span> CSV
                     </button>
                     <button
                         onClick={handleRefresh}
-                        className={`flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 hover:text-white hover:bg-gray-750 transition-all text-sm ${refreshing ? "animate-pulse" : ""
+                        className={`flex items-center gap-2 px-3 md:px-4 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 hover:text-white hover:bg-gray-750 transition-all text-xs md:text-sm ${refreshing ? "animate-pulse" : ""
                             }`}
                     >
                         <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
@@ -227,8 +227,8 @@ export default function AdminDashboard() {
                 )}
             </div>
 
-            {/* Leads Table */}
-            <div className="bg-gray-900/60 border border-gray-800 rounded-2xl overflow-hidden">
+            {/* Leads Table (Desktop) */}
+            <div className="hidden md:block bg-gray-900/60 border border-gray-800 rounded-2xl overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
@@ -339,6 +339,70 @@ export default function AdminDashboard() {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            {/* Leads Cards (Mobile) */}
+            <div className="md:hidden space-y-3">
+                {loading ? (
+                    <div className="text-center py-12 text-gray-500">
+                        <div className="animate-spin w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full mx-auto mb-3" />
+                        Loading leads...
+                    </div>
+                ) : filteredLeads.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                        <Users className="w-8 h-8 mx-auto mb-3 opacity-30" />
+                        <p>No leads found</p>
+                    </div>
+                ) : (
+                    filteredLeads.map((lead) => (
+                        <div
+                            key={lead.id}
+                            className="bg-gray-900/60 border border-gray-800 rounded-xl p-4"
+                        >
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
+                                        <span className="text-sm font-bold text-gray-400">
+                                            {lead.name.charAt(0).toUpperCase()}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <p className="text-white text-sm font-medium">{lead.name}</p>
+                                        <p className="text-gray-500 text-xs">{lead.phone}</p>
+                                    </div>
+                                </div>
+                                <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusColors[lead.status]}`}>
+                                    {statusLabels[lead.status]}
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between text-xs">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-gray-400 bg-gray-800 px-2 py-0.5 rounded">
+                                        {sourceLabels[lead.source] || lead.source}
+                                    </span>
+                                    <span className="text-gray-500 flex items-center gap-1">
+                                        <Clock className="w-3 h-3" />
+                                        {new Date(lead.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                                    </span>
+                                </div>
+                                <select
+                                    value={lead.status}
+                                    onChange={(e) => handleStatusUpdate(lead.id, e.target.value as LeadStatus)}
+                                    className="bg-gray-800 border border-gray-700 text-gray-300 text-xs rounded-lg px-2 py-1 focus:ring-green-500"
+                                >
+                                    <option value="new">New</option>
+                                    <option value="contacted">Contacted</option>
+                                    <option value="qualified">Qualified</option>
+                                    <option value="converted">Converted</option>
+                                    <option value="lost">Lost</option>
+                                </select>
+                            </div>
+                            {lead.message && (
+                                <p className="text-gray-400 text-xs mt-2 truncate">{lead.message}</p>
+                            )}
+                        </div>
+                    ))
+                )}
             </div>
 
             {/* Quick Info */}
