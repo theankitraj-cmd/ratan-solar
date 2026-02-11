@@ -26,6 +26,7 @@ function AdminContent({ children }: { children: React.ReactNode }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showEmailLogin, setShowEmailLogin] = useState(false);
     const [error, setError] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const pathname = usePathname();
@@ -45,7 +46,7 @@ function AdminContent({ children }: { children: React.ReactNode }) {
             setSubmitting(true);
             setError("");
 
-            const { error: authError } = useSupabaseAuth
+            const { error: authError } = showEmailLogin
                 ? await signIn(email, password)
                 : await signIn(password);
 
@@ -62,19 +63,13 @@ function AdminContent({ children }: { children: React.ReactNode }) {
                         </div>
                         <h1 className="text-2xl font-bold text-white">Ratan Solar Admin</h1>
                         <p className="text-gray-400 text-sm mt-1">
-                            {useSupabaseAuth ? "Sign in with your admin account" : "Enter admin password to continue"}
+                            Enter admin password to continue
                         </p>
-                        {useSupabaseAuth && (
-                            <div className="flex items-center justify-center gap-1.5 mt-2">
-                                <Shield className="w-3 h-3 text-green-400" />
-                                <span className="text-green-400 text-xs font-medium">Secured with Supabase Auth</span>
-                            </div>
-                        )}
                     </div>
 
                     <form onSubmit={handleLogin} className="bg-gray-900/80 border border-gray-800 rounded-2xl p-8 backdrop-blur-sm">
-                        {/* Email field (only for Supabase Auth) */}
-                        {useSupabaseAuth && (
+                        {/* Email field (only when toggled) */}
+                        {showEmailLogin && (
                             <div className="mb-4">
                                 <label className="block text-gray-300 text-sm font-medium mb-2">
                                     <Mail className="w-4 h-4 inline mr-2" />
@@ -86,7 +81,6 @@ function AdminContent({ children }: { children: React.ReactNode }) {
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="admin@ratansolar.com"
                                     className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                                    autoFocus
                                     required
                                 />
                             </div>
@@ -103,9 +97,9 @@ function AdminContent({ children }: { children: React.ReactNode }) {
                                     type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    placeholder={useSupabaseAuth ? "Enter your password" : "Enter admin password"}
+                                    placeholder="Enter admin password"
                                     className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                                    autoFocus={!useSupabaseAuth}
+                                    autoFocus
                                     required
                                 />
                                 <button

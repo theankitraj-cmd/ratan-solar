@@ -51,23 +51,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const signIn = useCallback(
         async (emailOrPassword: string, password?: string): Promise<{ error: string | null }> => {
+            // Always check fallback password first (works without Supabase user)
+            const passwordToCheck = password || emailOrPassword;
+            if (passwordToCheck === FALLBACK_PASSWORD) {
+                sessionStorage.setItem("admin_auth", "true");
+                setFallbackAuth(true);
+                return { error: null };
+            }
+
+            // Then try Supabase Auth if configured and email+password provided
             if (supabase && password) {
-                // Supabase Auth mode
                 const { error } = await supabase.auth.signInWithPassword({
                     email: emailOrPassword,
                     password,
                 });
                 if (error) return { error: error.message };
                 return { error: null };
-            } else {
-                // Fallback password mode
-                if (emailOrPassword === FALLBACK_PASSWORD) {
-                    sessionStorage.setItem("admin_auth", "true");
-                    setFallbackAuth(true);
-                    return { error: null };
-                }
-                return { error: "Incorrect password" };
             }
+
+            return { error: "Incorrect password" };
         },
         [supabase]
     );
