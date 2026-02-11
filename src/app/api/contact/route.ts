@@ -51,7 +51,7 @@ export async function POST(request: Request) {
         try {
             await resend.emails.send({
                 from: "Ratan Solar <onboarding@resend.dev>",
-                to: ["ratansolar@gmail.com"],
+                to: ["teslapowerusamotihari@gmail.com"],
                 subject: `🌞 New Lead: ${name} — ${service || "General Inquiry"}`,
                 html: `
                     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
